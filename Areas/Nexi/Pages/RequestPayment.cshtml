@@ -1,0 +1,20 @@
+@page
+@model RequestPaymentModel
+@{
+    ViewData["Title"] = "Identity Provider SPID";
+    if (Model.NoLayout)
+    {
+        Layout = "";
+    }
+}
+
+<div class="row">
+    <div style="height: 400px;">
+        <form id="nexiform" action="@ViewData["action"]" method="post"></form>
+        <input type="submit" name="hiddensubmit" style="display:none"/>
+    </div>
+</div>
+
+<script>
+    document.getElementById("nexiform").submit();
+</script>
