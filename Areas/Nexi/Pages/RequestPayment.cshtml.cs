@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Michaelsoft.Nexi.Extensions;
 using Michaelsoft.Nexi.Interfaces;
 using Michaelsoft.Nexi.Settings;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -13,12 +14,8 @@ namespace Michaelsoft.Nexi.Areas.Nexi.Pages
 
         private readonly INexi _nexi;
 
-        private readonly INexiSettings _nexiSettings;
-
-        public RequestPaymentModel(INexiSettings nexiSettings,
-                                   INexi nexi)
+        public RequestPaymentModel(INexi nexi)
         {
-            _nexiSettings = nexiSettings;
             _nexi = nexi;
         }
 
@@ -29,26 +26,27 @@ namespace Michaelsoft.Nexi.Areas.Nexi.Pages
         {
             NoLayout = !layout;
 
-            _nexi.PayloadToData(payload, out var amount, out var currency, out var code, out var method, out var email);
+            _nexi.PayloadToData(payload, out var paymentData);
             var rand = new Random();
-            var codTrans = code + ":" + rand.Next(1111, 9999);
-            var mac = _nexi.GenerateMac($"codTrans={codTrans}divisa={currency}importo={amount}");
+            var codTrans = paymentData.Code + ":" + rand.Next(1111, 9999);
+            var mac = _nexi.GenerateMac($"codTrans={codTrans}divisa={paymentData.Currency}importo={paymentData.Amount}",
+                                  paymentData.NexiSettings.SecretKey);
             var requestParams = new Dictionary<string, string>
             {
-                {"alias", _nexiSettings.Alias},
-                {"importo", amount},
-                {"divisa", currency},
+                {"alias", paymentData.NexiSettings.Alias},
+                {"importo", paymentData.Amount},
+                {"divisa", paymentData.Currency},
                 {"codTrans", codTrans},
-                {"url", _nexiSettings.Success},
-                {"url_back", _nexiSettings.Cancel},
+                {"url", paymentData.NexiSettings.Success},
+                {"url_back", paymentData.NexiSettings.Cancel},
                 {"mac", mac},
             };
-            if (email != null)
-                requestParams["mail"] = email;
-            if (method != null)
-                requestParams["selectedcard"] = method;
+            if (paymentData.EmailAddress != null)
+                requestParams["mail"] = paymentData.EmailAddress;
+            if (paymentData.Method != null)
+                requestParams["selectedcard"] = paymentData.Method;
 
-            ViewData["action"] = QueryHelpers.AddQueryString(_nexiSettings.Url, requestParams);
+            ViewData["action"] = QueryHelpers.AddQueryString(paymentData.NexiSettings.Url, requestParams);
         }
 
     }

@@ -3,9 +3,9 @@ using System.IO;
 using System.Security.Cryptography;
 using Michaelsoft.Nexi.Extensions;
 using Michaelsoft.Nexi.Interfaces;
+using Michaelsoft.Nexi.Models;
 using Michaelsoft.Nexi.Settings;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
 namespace Michaelsoft.Nexi.Services
@@ -16,7 +16,7 @@ namespace Michaelsoft.Nexi.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         private readonly AesManaged _aes;
-        
+
         private readonly INexiSettings _nexiSettings;
 
         public Nexi(INexiSettings nexiSettings,
@@ -29,77 +29,42 @@ namespace Michaelsoft.Nexi.Services
             _aes.GenerateKey();
         }
 
-        public void GoToPayment(decimal amount,
-                                string currency,
-                                string code,
-                                string method = null,
-                                string email = null,
-                                bool layout = true)
+        public void GoToPayment(PaymentData data,
+                                bool layout = true,
+                                INexiSettings overrideSettings = null)
         {
-            _httpContextAccessor.HttpContext.Response.Redirect(GetPaymentUrl(amount, currency, code, method, email,
-                                                                             layout));
+            _httpContextAccessor.HttpContext.Response.Redirect(GetPaymentUrl(data, layout, overrideSettings));
         }
 
-        public string GetPaymentUrl(decimal amount,
-                                    string currency,
-                                    string code,
-                                    string method = null,
-                                    string email = null,
-                                    bool layout = true)
+        public string GetPaymentUrl(PaymentData data,
+                                    bool layout = true,
+                                    INexiSettings overrideSettings = null)
         {
-            var payload = DataToPayload(amount, currency, code, method, email);
+            data.NexiSettings = overrideSettings ?? _nexiSettings;
+            var payload = DataToPayload(data);
             var url = $"/Nexi/RequestPayment?payload={payload}&layout={layout.ToString()}";
             return url;
         }
 
-        public class PaymentData
-        {
-
-            public string Amount { get; set; }
-
-            public string Currency { get; set; }
-
-            public string Code { get; set; }
-
-            public string Email { get; set; }
-
-            public string Method { get; set; }
-
-        }
-
-        public string DataToPayload(decimal amount,
-                                    string currency,
-                                    string code,
-                                    string method,
-                                    string email)
-        {
-            var paymentData = new PaymentData
-                {Amount = $"{(int) (amount * 100)}", Currency = currency, Code = code, Method = method, Email = email};
-            var json = JsonConvert.SerializeObject(paymentData);
-            var encrypted = EncryptStringToBytes_Aes(json, _aes.Key, _aes.IV);
-            return EncodingHelper.toSafeUrlBase64(encrypted);
-        }
-
         public void PayloadToData(string payload,
-                                  out string amount,
-                                  out string currency,
-                                  out string code,
-                                  out string method,
-                                  out string email)
+                                  out PaymentData data)
         {
             var encrypted = EncodingHelper.fromSafeUrlBase64(payload);
             var json = DecryptStringFromBytes_Aes(encrypted, _aes.Key, _aes.IV);
-            var paymentData = JsonConvert.DeserializeObject<PaymentData>(json);
-            amount = paymentData.Amount;
-            currency = paymentData.Currency;
-            code = paymentData.Code;
-            method = paymentData.Method;
-            email = paymentData.Email;
+            data = JsonConvert.DeserializeObject<PaymentData>(json);
         }
 
-        public string GenerateMac(string input)
+        public string GenerateMac(string input,
+                                  string overrideSecretKey = null)
         {
-            return EncodingHelper.HashMac(input + _nexiSettings.SecretKey);
+            return EncodingHelper.HashMac(input + (overrideSecretKey ?? _nexiSettings.SecretKey));
+        }
+
+        private string DataToPayload(PaymentData data)
+        {
+            var json = JsonConvert.SerializeObject(data);
+            var encrypted = EncryptStringToBytes_Aes(json, _aes.Key, _aes.IV);
+            return EncodingHelper.toSafeUrlBase64(encrypted);
         }
 
         private byte[] EncryptStringToBytes_Aes(string plainText,

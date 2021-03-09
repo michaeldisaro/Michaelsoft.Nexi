@@ -1,36 +1,24 @@
+using Michaelsoft.Nexi.Models;
+using Michaelsoft.Nexi.Settings;
+
 namespace Michaelsoft.Nexi.Interfaces
 {
     public interface INexi
     {
 
-        void GoToPayment(decimal amount,
-                         string currency,
-                         string code,
-                         string method = null,
-                         string email = null,
-                         bool layout = true);
+        void GoToPayment(PaymentData data,
+                         bool layout = true,
+                         INexiSettings overrideSettings = null);
 
-        string GetPaymentUrl(decimal amount,
-                             string currency,
-                             string code,
-                             string method = null,
-                             string email = null,
-                             bool layout = true);
-
-        string DataToPayload(decimal amount,
-                             string currency,
-                             string code,
-                             string method,
-                             string email);
+        string GetPaymentUrl(PaymentData data,
+                             bool layout = true,
+                             INexiSettings overrideSettings = null);
 
         void PayloadToData(string payload,
-                           out string amount,
-                           out string currency,
-                           out string code,
-                           out string method,
-                           out string email);
+                           out PaymentData data);
 
-        string GenerateMac(string input);
+        string GenerateMac(string input,
+                           string overrideSecretKey = null);
 
     }
 }
