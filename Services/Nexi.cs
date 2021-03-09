@@ -3,6 +3,7 @@ using System.IO;
 using System.Security.Cryptography;
 using Michaelsoft.Nexi.Extensions;
 using Michaelsoft.Nexi.Interfaces;
+using Michaelsoft.Nexi.Settings;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -15,13 +16,13 @@ namespace Michaelsoft.Nexi.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         private readonly AesManaged _aes;
+        
+        private readonly INexiSettings _nexiSettings;
 
-        private string _nexiSecretKey;
-
-        public Nexi(IConfiguration configuration,
+        public Nexi(INexiSettings nexiSettings,
                     IHttpContextAccessor httpContextAccessor)
         {
-            _nexiSecretKey = configuration["Nexi:SecretKey"];
+            _nexiSettings = nexiSettings;
             _httpContextAccessor = httpContextAccessor;
             _aes = new AesManaged();
             _aes.GenerateIV();
@@ -98,7 +99,7 @@ namespace Michaelsoft.Nexi.Services
 
         public string GenerateMac(string input)
         {
-            return EncodingHelper.HashMac(input + _nexiSecretKey);
+            return EncodingHelper.HashMac(input + _nexiSettings.SecretKey);
         }
 
         private byte[] EncryptStringToBytes_Aes(string plainText,
