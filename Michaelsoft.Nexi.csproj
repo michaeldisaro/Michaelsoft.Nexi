@@ -3,6 +3,17 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <PackageVersion>0.0.2</PackageVersion>
+    <Title>Michaelsoft.Nexi</Title>
+    <Authors>Michael Disarò</Authors>
+    <Description>A really simple integration for Nexi payments.</Description>
+    <Copyright>Michael Disarò</Copyright>
+    <PackageProjectUrl>https://github.com/michaeldisaro/Michaelsoft.Nexi</PackageProjectUrl>
+    <PackageLicense>https://github.com/michaeldisaro/Michaelsoft.Nexi/blob/master/LICENSE</PackageLicense>
+    <PackageLicenseUrl>https://github.com/michaeldisaro/Michaelsoft.Nexi/blob/master/LICENSE</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/michaeldisaro/Michaelsoft.Nexi</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>nexi, payments, easy integration</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
