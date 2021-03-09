@@ -49,7 +49,6 @@ namespace Michaelsoft.Nexi.Areas.Nexi.Pages
                 requestParams["selectedcard"] = method;
 
             ViewData["action"] = QueryHelpers.AddQueryString(_nexiSettings.Url, requestParams);
-            ;
         }
 
     }
