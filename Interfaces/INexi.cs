@@ -8,11 +8,11 @@ namespace Michaelsoft.Nexi.Interfaces
 
         void GoToPayment(PaymentData data,
                          bool layout = true,
-                         INexiSettings overrideSettings = null);
+                         NexiSettings overrideSettings = null);
 
         string GetPaymentUrl(PaymentData data,
                              bool layout = true,
-                             INexiSettings overrideSettings = null);
+                             NexiSettings overrideSettings = null);
 
         void PayloadToData(string payload,
                            out PaymentData data);

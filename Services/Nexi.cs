@@ -17,12 +17,12 @@ namespace Michaelsoft.Nexi.Services
 
         private readonly AesManaged _aes;
 
-        private readonly INexiSettings _nexiSettings;
+        private readonly NexiSettings _nexiSettings;
 
         public Nexi(INexiSettings nexiSettings,
                     IHttpContextAccessor httpContextAccessor)
         {
-            _nexiSettings = nexiSettings;
+            _nexiSettings = (NexiSettings) nexiSettings;
             _httpContextAccessor = httpContextAccessor;
             _aes = new AesManaged();
             _aes.GenerateIV();
@@ -31,14 +31,14 @@ namespace Michaelsoft.Nexi.Services
 
         public void GoToPayment(PaymentData data,
                                 bool layout = true,
-                                INexiSettings overrideSettings = null)
+                                NexiSettings overrideSettings = null)
         {
             _httpContextAccessor.HttpContext.Response.Redirect(GetPaymentUrl(data, layout, overrideSettings));
         }
 
         public string GetPaymentUrl(PaymentData data,
                                     bool layout = true,
-                                    INexiSettings overrideSettings = null)
+                                    NexiSettings overrideSettings = null)
         {
             data.NexiSettings = overrideSettings ?? _nexiSettings;
             var payload = DataToPayload(data);

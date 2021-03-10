@@ -5,7 +5,7 @@ namespace Michaelsoft.Nexi.Models
     public class PaymentData
     {
 
-        public INexiSettings NexiSettings { get; set; }
+        public NexiSettings NexiSettings { get; set; }
 
         /// <summary>
         /// Use StringifyAmount to get the correct value to set to this property
