@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-    <PackageVersion>0.0.2</PackageVersion>
+    <PackageVersion>0.0.3</PackageVersion>
     <Title>Michaelsoft.Nexi</Title>
     <Authors>Michael Disarò</Authors>
     <Description>A really simple integration for Nexi payments.</Description>
