@@ -22,7 +22,7 @@ namespace Michaelsoft.Nexi.Models
 
         public static string StringifyAmount(decimal amount)
         {
-            return $"{(int) amount * 100}";
+            return $"{(int) (amount * 100)}";
         }
 
     }
