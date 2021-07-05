@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using Michaelsoft.Nexi.Extensions;
 using Michaelsoft.Nexi.Interfaces;
 using Michaelsoft.Nexi.Settings;
@@ -20,15 +21,14 @@ namespace Michaelsoft.Nexi.Areas.Nexi.Pages
         }
 
         public bool NoLayout { get; set; }
-
+        
         public void OnGet(string payload,
                           bool layout = true)
         {
             NoLayout = !layout;
 
             _nexi.PayloadToData(payload, out var paymentData);
-            var rand = new Random();
-            var codTrans = paymentData.Code + ":" + rand.Next(1111, 9999);
+            var codTrans = paymentData.Code + ":" + RandomHelper.RandomString(4);
             var mac = _nexi.GenerateMac($"codTrans={codTrans}divisa={paymentData.Currency}importo={paymentData.Amount}",
                                   paymentData.NexiSettings.SecretKey);
             var requestParams = new Dictionary<string, string>
